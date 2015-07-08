@@ -8,3 +8,5 @@ retrieved over HTTP.
 
 `rrdd` also implements a plugin mechanism, by which other processes can register
 additional datasources to be collected.
+
+TEST
