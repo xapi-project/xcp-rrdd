@@ -39,6 +39,8 @@ type process_memory_info = {
 	stack: int; (* KiB *)
 	exe: int; (* KiB *)
 	lib: int; (* KiB *)
+	pte: int; (* KiB *)
+	swap: int; (* KiB *)
 }
 
 let null_process_memory_info = {
@@ -51,6 +53,8 @@ let null_process_memory_info = {
 	stack = 0;
 	exe = 0;
 	lib = 0;
+	pte = 0;
+	swap = 0;
 }
 
 let plus_process_memory_info pmi1 pmi2 = {
@@ -63,6 +67,8 @@ let plus_process_memory_info pmi1 pmi2 = {
 	stack = pmi1.stack + pmi2.stack;
 	exe = pmi1.exe + pmi2.exe;
 	lib = pmi1.lib + pmi2.lib;
+	pte = pmi1.pte + pmi2.pte;
+	swap = pmi1.swap + pmi2.swap;
 }
 
 open Xstringext
@@ -108,7 +114,9 @@ let process_memory_info_of_pid (pid : int) : process_memory_info =
 	and data = ref (-1)
 	and stack = ref (-1)
 	and exe = ref (-1)
-	and lib = ref (-1) in
+	and lib = ref (-1)
+	and pte = ref (-1)
+	and swap = ref (-1) in
 	List.iter (fun line -> match split_colon line with
 		| ["VmPeak:"; x; "kB"] -> peak := int_of_string x
 		| ["VmSize:"; x; "kB"] -> size := int_of_string x
@@ -119,15 +127,18 @@ let process_memory_info_of_pid (pid : int) : process_memory_info =
 		| ["VmStk:"; x; "kB"] -> stack := int_of_string x
 		| ["VmExe:"; x; "kB"] -> exe := int_of_string x
 		| ["VmLib:"; x; "kB"] -> lib := int_of_string x
+		| ["VmPTE:"; x; "kB"] -> pte := int_of_string x
+		| ["VmSwap:"; x; "kB"] -> swap := int_of_string x
 		| _ -> ()
 	) (String.split '\n' all);
 	{peak = !peak; size = !size; locked = !locked; hwm = !hwm;
-	rss = !rss; data = !data; stack = !stack; exe = !exe; lib = !lib}
+	rss = !rss; data = !data; stack = !stack; exe = !exe; lib = !lib;
+	pte = !pte; swap = !swap}
 
 let string_of_process_memory_info (x: process_memory_info) =
 	Printf.sprintf
-		"size: %d KiB; rss: %d KiB; data: %d KiB; stack: %d KiB"
-		x.size x.rss x.data x.stack
+		"size: %d KiB; rss: %d KiB; data: %d KiB; stack: %d KiB; PTE: %d KiB; swap: %d KiB"
+		x.size x.rss x.data x.stack x.pte x.swap
 
 (* Log the initial offset between our monotonic clock and UTC *)
 let initial_offset =
