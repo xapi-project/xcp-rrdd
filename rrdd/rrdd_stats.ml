@@ -176,7 +176,7 @@ let print_stats_for ~program =
 	debug "%s stats (n = %d): %s" program n (string_of_process_memory_info pmi)
 
 let last_log = ref 0.
-let log_interval = 60.
+let log_interval = 5.
 let programs_to_monitor = ["xcp-rrdd"; "xapi"; "xenopsd-xc"; "xenopsd-xenlight"]
 
 let print_stats () =
