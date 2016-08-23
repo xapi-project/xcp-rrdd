@@ -61,8 +61,7 @@ Executable "xcp-rrdd"
     rpclib.syntax,
     io-page.unix,
     xen-gnt.unix,
-    oclock,
-    systemd
+    oclock
 
 Executable "test_rrdd_monitor"
   CompiledObject:     best
