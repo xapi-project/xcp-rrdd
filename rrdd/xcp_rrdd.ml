@@ -324,7 +324,7 @@ let update_netdev doms =
 	let stats = Network_stats.read_stats () in
 	let dss, sum_rx, sum_tx =
 	List.fold_left (fun (dss, sum_rx, sum_tx) (dev, stat) ->
-		if not (String.startswith "vif" dev) then
+		if not (String.startswith "vif" dev || String.startswith "xenapi" dev) then
 		begin
 			let pif_name = "pif_" ^ dev in
 			(Host, ds_make ~name:(pif_name ^ "_rx")
