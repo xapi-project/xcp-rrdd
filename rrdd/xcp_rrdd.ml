@@ -160,7 +160,7 @@ module Meminfo = struct
         info "Couldn't read path %s; forgetting last known memfree value for domain %d" path d;
         current_meminfofree_values := IntMap.remove d !current_meminfofree_values
 
-  let watch_fired _ _xc path domains _ =
+  let watch_fired _ _xc path domains _ _ =
     match List.filter (fun x -> x <> "") Astring.String.(cuts ~sep:"/" path) with
     | "local" :: "domain" :: domid :: "data" :: "meminfo_free" :: [] ->
       fire_event_on_vm domid domains
