@@ -193,12 +193,15 @@ let update_vcpus xc doms =
       let rec cpus i dss =
         if i >= maxcpus then dss else
           let vcpuinfo = Xenctrl.domain_get_vcpuinfo xc domid i in
-          cpus (i+1) ((VM uuid,
-                       ds_make
+          (* Convert from nanoseconds to seconds *)
+          let cpu_time = (Int64.to_float vcpuinfo.Xenctrl.cputime) /. 1.0e9 in
+          let cputime_rrd = VM uuid, ds_make
                          ~name:(Printf.sprintf "cpu%d" i) ~units:"(fraction)"
                          ~description:(Printf.sprintf "CPU%d usage" i)
-                         ~value:(Rrd.VT_Float ((Int64.to_float vcpuinfo.Xenctrl.cputime) /. 1.0e9))
-                         ~ty:Rrd.Derive ~default:true ~min:0.0 ~max:1.0 ())::dss)
+                         ~value:(Rrd.VT_Float cpu_time)
+                         ~ty:Rrd.Derive ~default:true ~min:0.0 ~max:1.0 ()
+          in
+          cpus (i + 1) (cputime_rrd :: dss)
       in
 
       (* Runstate info is per-domain rather than per-vcpu *)
@@ -260,7 +263,7 @@ let update_pcpus xc =
     ) ([], 0) newinfos in
   let sum_array = Array.fold_left (fun acc v -> Int64.add acc v) 0L newinfos in
   let avg_array = Int64.to_float sum_array /. (float_of_int len_newinfos) in
-  let avgcpu_ds = (Host, ds_make 
+  let avgcpu_ds = (Host, ds_make
                      ~name:"cpu_avg" ~units:"(fraction)"
                      ~description:"Average physical cpu usage"
                      ~value:(Rrd.VT_Float (avg_array /. 1.0e9)) ~min:0.0 ~max:1.0
