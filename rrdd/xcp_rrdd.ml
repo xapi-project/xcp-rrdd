@@ -586,6 +586,8 @@ module Discover: DISCOVER = struct
 	 *  Currently we only ignore *.tmp files *)
 	let is_valid file =
 		not @@ Filename.check_suffix file ".tmp"
+		(* the tap- files are not valid RRDs and spam the logs *)
+		&& not @@ Xstringext.String.startswith "tap-" file
 
 	let events_as_string
 		: Inotify.event_kind list -> string
