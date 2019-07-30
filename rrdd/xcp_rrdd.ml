@@ -66,6 +66,7 @@ let accept_forever sock f =
 (* Bind server to the file descriptor. *)
 let start (xmlrpc_path, http_fwd_path) process =
 	let server = Http_svr.Server.empty () in
+	Http_svr.Server.enable_fastpath server;
 	let open Rrdd_http_handler in
 	Http_svr.Server.add_handler server Http.Post "/" (Http_svr.BufIO (xmlrpc_handler process));
 	Http_svr.Server.add_handler server Http.Get Constants.get_vm_rrd_uri (Http_svr.FdIO get_vm_rrd_handler);
@@ -585,6 +586,8 @@ module Discover: DISCOVER = struct
 	 *  Currently we only ignore *.tmp files *)
 	let is_valid file =
 		not @@ Filename.check_suffix file ".tmp"
+		(* the tap- files are not valid RRDs and spam the logs *)
+		&& not @@ Xstringext.String.startswith "tap-" file
 
 	let events_as_string
 		: Inotify.event_kind list -> string
