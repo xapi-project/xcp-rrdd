@@ -40,6 +40,17 @@ let merge_new_dss rrd dss =
       rrd_add_ds rrd now (Rrd.ds_create ds.ds_name ds.Ds.ds_type ~mrhb:300.0 Rrd.VT_Unknown)
     ) rrd new_dss
 
+module StringSet = Set.Make(String)
+
+let remove_unused_dss rrdi =
+  let all_dss = rrdi.rrd |> Rrd.ds_names in
+  let used_dss = rrdi.dss |> List.map (fun d -> d.ds_name) in
+  if List.length all_dss = List.length used_dss then rrdi
+  else
+    let to_remove = StringSet.diff (StringSet.of_list all_dss) (StringSet.of_list used_dss) in
+    let rrd = StringSet.fold (fun ds rrd -> Rrd.rrd_remove_ds rrd ds) to_remove rrdi.rrd in
+    { rrdi with rrd }
+
 (* Updates all of the hosts rrds. We are passed a list of uuids that
  * is used as the primary source for which VMs are resident on us.
  * When a new uuid turns up that we haven't got an RRD for in our
@@ -137,7 +148,11 @@ let update_rrds timestamp dss (uuid_domids : (string * int) list) paused_vms =
         | Some rrdi ->
           rrdi.dss <- host_dss;
           let rrd = merge_new_dss rrdi.rrd host_dss in
-          host_rrd := Some {rrd; dss = host_dss; domid = 0};
+          (* CA-325582: hosts are long lived objects, we have to remove unused datasources
+           * to avoid space leaks.
+           * If plugins want to preserve historic values for inactive dss they have to keep
+           * reporting empty values for them (e.g. xcp-rrdd-iostat *)
+          host_rrd := Some (remove_unused_dss {rrd; dss = host_dss; domid = 0});
           Rrd.ds_update_named rrd timestamp ~new_domid:false
             (List.map (fun ds -> (ds.ds_name, (ds.ds_value,ds.ds_pdp_transform_function))) host_dss)
       end;
