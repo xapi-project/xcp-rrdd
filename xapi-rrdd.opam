@@ -17,7 +17,7 @@ depends: [
   "inotify"
   "io-page"
   "mtime"
-  "ounit" {with-test}
+  "alcotest" {with-test}
   "ppx_deriving_rpc"
   "rpclib"
   "systemd"
