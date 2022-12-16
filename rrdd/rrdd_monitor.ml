@@ -85,6 +85,8 @@ let owner_to_string () = function
   | SR uuid ->
       "SR " ^ uuid
 
+module StringMap = Map.Make (String)
+
 (** Updates all of the hosts rrds. We are passed a list of uuids that is used as
     the primary source for which VMs are resident on us. When a new uuid turns
     up that we haven't got an RRD for in our hashtbl, we create a new one. When
@@ -93,6 +95,7 @@ let owner_to_string () = function
     master. We also have a list of the currently rebooting VMs to ensure we
     don't accidentally archive the RRD. *)
 let update_rrds timestamp dss uuid_domids paused_vms =
+  let __FUNCTION__ = "Rrdd_monitor.update_rrds" in
   let uuid_domids = List.to_seq uuid_domids |> StringMap.of_seq in
   let paused_vms = List.to_seq paused_vms |> StringSet.of_seq in
   let consolidate all (owner, ds) =
@@ -101,8 +104,6 @@ let update_rrds timestamp dss uuid_domids paused_vms =
       | None ->
           Some (add_ds_to StringMap.empty)
       | Some dss ->
-          warn {|%s: found duplicate datasource with key "%s" in owner "%a"|}
-            __FUNCTION__ ds.ds_name owner_to_string owner ;
           Some (add_ds_to dss)
     in
     OwnerMap.update owner merge all
