@@ -9,15 +9,15 @@ authors: "xen-api@lists.xen.org"
 homepage: "https://github.com/xapi-project/xcp-rrdd"
 bug-reports: "https://github.com/xapi-project/xcp-rrdd/issues"
 depends: [
-  "ocaml" {>= "4.02.0"}
-  "dune" {build}
+  "ocaml" {>= "4.07.0"}
+  "dune"
   "astring"
   "gzip"
   "http-svr"
   "inotify"
   "io-page"
   "mtime"
-  "ounit" {with-test}
+  "alcotest" {with-test}
   "ppx_deriving_rpc"
   "rpclib"
   "systemd"
