@@ -217,6 +217,8 @@ module Deprecated = struct
     with _ -> ()
 end
 
+let save_rrds = backup_rrds None
+
 let get_rrd ~vm_uuid =
   let path = Filename.concat Rrdd_libs.Constants.rrd_location vm_uuid in
   rrd_of_gzip path
