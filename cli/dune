@@ -1,0 +1,12 @@
+(executable
+ (name rrd_cli)
+ (public_name rrd-cli)
+ (package xapi-rrdd)
+ (modules rrd_cli)
+ (libraries
+   cmdliner
+   rpclib.cmdliner
+   rpclib.markdown
+   xapi-idl.rrd
+ ))
+

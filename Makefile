@@ -8,9 +8,11 @@ build:
 
 install:
 	install -D _build/install/default/bin/xcp-rrdd $(DESTDIR)$(SBINDIR)/xcp-rrdd
+	install -D _build/install/default/bin/rrd-cli $(DESTDIR)$(SBINDIR)/rrd-cli
 
 uninstall:
 	rm -f $(DESTDIR)$(SBINDIR)/xcp-rrdd
+	rm -f $(DESTDIR)$(SBINDIR)/rrd-cli
 
 clean:
 	dune clean
