@@ -17,11 +17,12 @@ let default_cmd =
       ]
   in
   ( Cmdliner.Term.(ret (const (fun _ -> `Help (`Pager, None)) $ const ()))
-  , Cmdliner.Term.info "rrd-cli" ~version:(version_str Cmds.description) ~doc )
+  , Cmdliner.Term.info "rrd-cli" ~version:(version_str Cmds.description) ~doc
+  )
 
 let cli () =
   let rpc = Rrd_client.rpc in
   Cmdliner.Term.eval_choice default_cmd
     (List.map (fun t -> t rpc) (Cmds.implementation ()))
 
-let _ = cli ()
+let () = match cli () with `Ok f -> f () | _ -> ()
